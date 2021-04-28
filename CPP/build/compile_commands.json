@@ -1,0 +1,7 @@
+[
+{
+  "directory": "/Users/yongbeomkwak/Development/Algorithm/CPP/build",
+  "command": "/usr/bin/clang++   -g -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk -o CMakeFiles/Test.dir/main.cpp.o -c /Users/yongbeomkwak/Development/Algorithm/CPP/main.cpp",
+  "file": "/Users/yongbeomkwak/Development/Algorithm/CPP/main.cpp"
+}
+]
