@@ -1,109 +1,86 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
+#include <queue>
 #define null 0
+#define endl "\n"
+#define MAX 10
 using namespace std;
 
-template <typename T>
-class Tree; //프로토 타입
-
-template <typename T>
-class TreeNode
+//topological sorting
+int inDegree[MAX];          // 진입 차수 의미
+vector<int> node_info[MAX]; // 각 정점에 연결되어 있는 모든 노드 정보(핵심은 벡터의 배열을 사용하여함 , 한 지점에서 여러개로 갈 수 있으므로 )
+int n;
+void topologySort()
 {
-    friend class Tree<T>; //TreeNode는 Babo,Tree는 Trash
-private:
-    T data;
-    TreeNode *left;
-    TreeNode *right;
+    int result[MAX]; // 위상정렬을 수행한 결과값 담는 배열
+    queue<int> q;
 
-public:
-    TreeNode(T data = 0, TreeNode *left = null, TreeNode *right = null)
+    for (int i = 1; i <= n; i++)
     {
-        this->data = data;
-        this->left = left;
-        this->right = right;
-    }
-};
-
-template <typename T>
-class Tree
-{
-private:
-    TreeNode<T> *root;
-
-public:
-    Tree(T data = 0)
-    {
-        root = new TreeNode<T>(data);
-    }
-    // Tree 만들기
-    /*
-                A
-            B        C
-        D      E      F   G
-    H   I  J       K 
-    */
-    void buildTree()
-    {
-        root->left = new TreeNode<T>('B', new TreeNode<T>('D', new TreeNode<T>('H')), new TreeNode<T>('E', new TreeNode<T>('I'), new TreeNode<T>('J')));
-        root->right = new TreeNode<T>('C', new TreeNode<T>('F'), new TreeNode<T>('G', null, new TreeNode<T>('K')));
-    }
-
-    TreeNode<T> *getRoot()
-    {
-        return root;
-    }
-
-    void visit(TreeNode<T> *current)
-    {
-        cout << current->data << " ";
-    }
-    // 전위 순회 Current(root) - Left - Right
-    void preorder(TreeNode<T> *current) //자기자신 ,왼쪽 ,오른쪽
-    {
-        if (current != null)
-        { //자신이 끝 값인지 확인
-            visit(current);
-            preorder(current->left);
-            preorder(current->right);
-        }
-    }
-    // 중위순회  left,root,right
-    void inorder(TreeNode<T> *current) // 왼쪽 자기자신 오른쪽
-    {
-        if (current != null)
-        { //자신이 끝 값인지 확인
-            inorder(current->left);
-            visit(current);
-            inorder(current->right);
-        }
-    }
-    //후위순회 left,right,root
-    void postorder(TreeNode<T> *current)
-    {
-        if (current != null)
+        if (inDegree[i] == 0) //진입 차수가 없다는 뜻은(출발 지점 또는 그 전에는 연결되있지만 앞이 끊어지면 새로운 출발지점인 상태)
         {
-            postorder(current->left);
-            postorder(current->right);
-            visit(current);
+            q.push(i); //해당 출발지점 넣어줌
         }
     }
-};
+    // 위상 정렬이 완전히 수행되려면 정확히 N개의 노드 방문해야함
+    for (int i = 1; i <= n; i++)
+    {
+        // n개의 노드를 방문하기 전에 큐가 비면 사이클 발생
+        if (q.empty())
+        {
+            printf("사이클이 발생했습니다.\n");
+            return;
+        }
+        // 큐의 가장 앞의 원소를 빼서 result 배열에 넣어줌
+        int x = q.front(); //출발지점 노드를 뺌
+        q.pop();
+        result[i] = x; // 결과 넣어줌 
+
+        // 꺼낸 원소에 연결이 되어있는 모든 정점들을 확인하면서 간선제거
+        for (int j = 0; j < node_info[x].size(); j++)
+        {
+            int y = node_info[x][j]; // 한 지점에서 여러개의 간선이 있을 수 있기 때문에 반복 
+
+            // 진입차수가 0인 노드 큐에 삽입
+            if (--inDegree[y] == 0) //지점을 끊었을 시 만약 간선이 존재하지 않으면 새로운 출발지점이 됨
+            {
+                q.push(y);
+            }
+        }
+    }
+
+    // 결과 출력
+    for (int i = 1; i <= n; i++)
+    {
+        cout << result[i] << endl;
+    }
+}
 
 int main()
 {
-    
-    Tree<char> tree('A');
-    tree.buildTree();
-    cout << "Preorder >> ";
-    tree.preorder(tree.getRoot());
-    cout << endl;
+    n = 7; // 노드 개수
 
-    cout << "Inorder >> ";
-    tree.inorder(tree.getRoot());
-    cout << endl;
+    node_info[1].push_back(2); // 1번 노드 -> 2번 노드
+    inDegree[2]++;     // 2번 노드의 진입차수 1 증가
 
-    cout << "Postorder >> ";
-    tree.postorder(tree.getRoot());
-    cout << endl;
+    node_info[1].push_back(5);
+    inDegree[5]++;
+
+    node_info[2].push_back(3);
+    inDegree[3]++;
+
+    node_info[3].push_back(4);
+    inDegree[4]++;
+
+    node_info[4].push_back(6);
+    inDegree[6]++;
+
+    node_info[5].push_back(6);
+    inDegree[6]++;
+
+    node_info[6].push_back(7);
+    inDegree[7]++;
+
+    topologySort();
 }
